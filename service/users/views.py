@@ -22,7 +22,6 @@ class ProjectLimitOffsetPagination(LimitOffsetPagination):
     default_limit = 2
 
 class ProjectModelViewSet(ViewSet):
-    renderer_classes = [JSONRenderer]
     queryset = Project.objects.all()
     filterset_fields = ['name','users']
     pagination_class = ProjectLimitOffsetPagination
