@@ -2,28 +2,31 @@ import React from 'react'
 import {Link, useParams} from "react-router-dom";
 
 
-const UserItem = ({item}) => {
+const ToDoItem = ({item}) => {
     return (
         <tr>
             <td>{item.id}</td>
-            <td>{item.name}</td>
             <td>{item.project.name}</td>
+            <td>{item.user.name}</td>
+            <td>{item.text}</td>
         </tr>
     )
 }
-const UserList = ({items}) => {
+
+const ToDoList = ({items}) => {
     return (
         <table>
             <tr>
                 <th>ID</th>
-                <th>USERNAME</th>
                 <th>PROJECT</th>
+                <th>USER</th>
+                <th>COMMIT</th>
             </tr>
-            {items.map((item) => <UserItem item={item}/>)}
+            {items.map((item) => <ToDoItem item={item}/>)}
         </table>
     )
 }
 
 
 
-export default UserList
+export default ToDoList

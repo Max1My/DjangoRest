@@ -1,6 +1,5 @@
 import React from 'react'
-import {Link, useParams} from "react-router-dom";
-
+import { useParams } from 'react-router-dom'
 
 const UserItem = ({item}) => {
     return (
@@ -11,7 +10,10 @@ const UserItem = ({item}) => {
         </tr>
     )
 }
-const UserList = ({items}) => {
+
+const ProjectUserList = ({items}) => {
+    let { id } = useParams();
+    let filtered_items = items.filter((item) => item.project.id == id)
     return (
         <table>
             <tr>
@@ -19,11 +21,9 @@ const UserList = ({items}) => {
                 <th>USERNAME</th>
                 <th>PROJECT</th>
             </tr>
-            {items.map((item) => <UserItem item={item}/>)}
+            {filtered_items.map((item) => <UserItem item={item} />)}
         </table>
     )
 }
 
-
-
-export default UserList
+export default ProjectUserList
