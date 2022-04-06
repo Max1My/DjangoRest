@@ -3,48 +3,34 @@ from rest_framework.generics import ListAPIView,ListCreateAPIView
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import Response
-from rest_framework import status
+from rest_framework import status,permissions
 from .models import User,Project,ToDo_list
 from .serializers import UserModelSerializer,ProjectModelSerializer,ToDolistModelSerializer
 
 
 
-class UserLimitOffsetPagination(LimitOffsetPagination):
-    default_limit = 2
+
 
 class UserModelViewSet(ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserModelSerializer
-    filterset_fields = ['username','email']
-    pagination_class = UserLimitOffsetPagination
 
-class ProjectLimitOffsetPagination(LimitOffsetPagination):
-    default_limit = 2
 
-class ProjectModelViewSet(ViewSet):
+
+class ProjectModelViewSet(ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Project.objects.all()
-    filterset_fields = ['name','users']
-    pagination_class = ProjectLimitOffsetPagination
+    serializer_class = ProjectModelSerializer
 
-    def list(self,request):
-        projects = Project.objects.all()
-        serializer = ProjectModelSerializer(projects, many=True)
-        return Response(serializer.data)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        headers['bababa'] = ''
+        return Response(serializer.data,status=status.HTTP_201_CREATED,headers=headers)
 
-    def get(self, request, format=None):
-        projects = Project.objects.all()
-        serializer = ProjectModelSerializer(projects, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = ProjectModelSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class TodoListLimitOffsetPagintaion(LimitOffsetPagination):
-    default_limit = 2
 
 class TodoListModelViewSet(ViewSet):
     queryset = ToDo_list.objects.all()

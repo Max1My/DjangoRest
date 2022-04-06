@@ -9,7 +9,7 @@ class UserModelSerializer(ModelSerializer):
 class ProjectModelSerializer(ModelSerializer):
     class Meta:
         model = Project
-        fields = ['name','users']
+        fields = '__all__'
 
 class ToDolistModelSerializer(ModelSerializer):
 
