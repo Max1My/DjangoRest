@@ -43,4 +43,57 @@ class TestAuthorViewSet(TestCase):
         force_authenticate(request,admin)
         view = AuthorViewSet.as_view({'get': 'create'})
         response = view(request)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get_detail(self):
+        author = Author.objects.create(name='Пушкин',birthday_year=1799)
+        client = APIClient()
+        response = client.get(f'/api/authors/{author.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_edit_guest(self):
+        author = Author.objects.create(name='Пушкин',birthday_year=1799)
+        client = APIClient()
+        response = client.put(f'/api/authors/{author.id}/',{
+            'name':'Грин',
+            'birthday_year': 1880
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_edit_admin(self):
+        author = Author.objects.create(name='Пушкин',birthday_year=1799)
+        client = APIClient()
+        admin = User.objects.create_superuser('maximy', 'mksadmin@gmail.com', 'sync')
+        client.login(username='maximy',password='sync')
+        response = client.put(f'/api/authors/{author.id}/',{
+            'name':'Грин',
+            'birthday_year': 1880
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        author = Author.objects.get(id=author.id)
+        self.assertEqual(author.name, 'Грин')
+        self.assertEqual(author.birthday_year, 1880)
+        client.logout()
+
+class TestMath(APISimpleTestCase):
+
+    def test_sqrt(self):
+        import math
+        self.assertEqual(math.sqrt(4),2)
+
+class TestBookViewSet(APITestCase):
+    def test_get_list(self):
+        response = self.client.get('/api/books/')
+        self.assertEqual(response.status_code,status.HTTP_200_OK)
+
+    def test_edit_admin(self):
+        author = Author.objects.create(name='Пушкин',birthday_year=1799)
+        book = Book.objects.create(name='Пиковая дама', author=author)
+        admin = User.objects.create_superuser('maximy','admin@gmail.com','sync')
+        self.client.login(username='maximy',password='sync')
+        response = self.client.put(f'/api/books/{book.id}/', {'name': 'Руслан и Людмила',
+                                                              'author': book.author.id})
+        self.assertEqual(response.status_code,status.HTTP_200_OK)
+        book = Book.objects.get(id=book.id)
+        self.assertEqual(book.name, 'Руслан и Людмила')
