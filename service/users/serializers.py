@@ -6,6 +6,7 @@ class UserModelSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+
 class ProjectModelSerializer(ModelSerializer):
     class Meta:
         model = Project
