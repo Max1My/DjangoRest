@@ -1,14 +1,21 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.response import Response
 
 from .models import Author, Book
-from .serializers import AuthorSerializer, BookSerializer, BookSerializerBase
+from .serializers import AuthorSerializer, BookSerializer, BookSerializerBase,AuthorNameSerializer
 
 
-class AuthorViewSet(viewsets.ModelViewSet):
+class AuthorViewSet(generics.ListAPIView):
     # permission_classes = [permissions.IsAuthenticated]
     serializer_class = AuthorSerializer
     queryset = Author.objects.all()
+
+    def get_serializer_class(self):
+        print(self.request.version)
+        if self.request.version == '2':
+            return AuthorNameSerializer
+        return AuthorSerializer
+
 
     # def create(self,request,*args,**kwargs):
     #     serializer = self.get_serializer(data=request.data)
