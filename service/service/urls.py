@@ -10,6 +10,8 @@ from users.views import UserModelViewSet,ProjectModelViewSet,TodoListModelViewSe
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
+from graphene_django.views import GraphQLView
+
 schema_view = get_schema_view(
     openapi.Info(
         title='service',
@@ -43,11 +45,12 @@ urlpatterns = [
     # path('api/auth/', include('djoser.urls.authtoken')),
     # path('api/auth/', include('djoser.urls.jwt')),
     # path('schema/',schema_view),
-    path('api/users/',UserListAPIView.as_view()),
+    # path('api/users/',UserListAPIView.as_view()),
     # path('api/users/1', include('users.urls', namespace='1')),
     # path('api/users/2', include('users.urls', namespace='2')),
     # re_path(r'^api/(?P<version>\d)/users/$',UserListAPIView.as_view()),
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$',schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),name='schema-redoc'),
+    # re_path(r'^swagger(?P<format>\.json|\.yaml)$',schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    # path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),name='schema-swagger-ui'),
+    # path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),name='schema-redoc'),
+    path('graphql/',GraphQLView.as_view(graphiql=True))
 ]
