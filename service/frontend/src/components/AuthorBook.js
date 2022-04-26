@@ -7,6 +7,7 @@ const BookItem = ({item}) => {
             <td>{item.id}</td>
             <td>{item.name}</td>
             <td>{item.author.name}</td>
+
         </tr>
     )
 }
