@@ -4,10 +4,8 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import Response
 from rest_framework import status,permissions
-from django.contrib.auth.models import User
-from .models import Project,ToDo_list
-from .models import User as User_test
-from .serializers import UserModelSerializer,UserSerializer,UserAdminSerializer,ProjectModelSerializer,ToDolistModelSerializer
+from .models import Project,ToDo_list,User_test
+from .serializers import UserModelSerializer,UserAdminSerializer,ProjectModelSerializer,ToDolistModelSerializer
 
 
 
@@ -18,14 +16,14 @@ class UserModelViewSet(ModelViewSet):
     queryset = User_test.objects.all()
     serializer_class = UserModelSerializer
 
-class UserListAPIView(ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    def get_serializer_class(self):
-        print(self.request.version)
-        if self.request.version == '2':
-            return UserAdminSerializer
-        return UserSerializer
+# class UserListAPIView(ListAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     def get_serializer_class(self):
+#         print(self.request.version)
+#         if self.request.version == '2':
+#             return UserAdminSerializer
+#         return UserSerializer
 
 class ProjectModelViewSet(ModelViewSet):
     # permission_classes = [permissions.IsAuthenticated]

@@ -1,15 +1,12 @@
 import React from 'react'
-import AuthorList from './components/Author.js'
-import BookList from './components/Book.js'
-import AuthorBookList from './components/AuthorBook.js'
+import ProjectList from "./components/Project";
+import UserList from "./components/User";
+import ProjectForm from "./components/ProjectForm";
+import ProjectUserList from "./components/ProjectUser";
+import LoginForm from './components/Auth.js'
 import {BrowserRouter, Route, Switch, Redirect, Link} from 'react-router-dom'
 import axios from 'axios'
-import LoginForm from "./components/Auth";
 import Cookies from 'universal-cookie';
-import UserList from "./components/User";
-import ProjectList from "./components/Project";
-import ProjectUserList from "./components/ProjectUser";
-
 
 const NotFound404 = ({location}) => {
     return (
@@ -32,12 +29,11 @@ class App extends React.Component {
     set_token(token) {
         const cookies = new Cookies()
         cookies.set('token', token)
-        // localStorage.setItem('token', token)
         this.setState({'token': token}, () => this.load_data())
     }
 
     is_authenticated() {
-        return this.state.token != ''
+        return this.state.token !== ''
     }
 
     logout() {
@@ -47,9 +43,7 @@ class App extends React.Component {
     get_token_from_storage() {
         const cookies = new Cookies()
         const token = cookies.get('token')
-        // const token = localStorage.getItem('token')
         this.setState({'token': token}, () => this.load_data())
-
     }
 
     get_token(username, password) {
@@ -62,10 +56,9 @@ class App extends React.Component {
             }).catch(error => alert('Неверный логин или пароль'))
     }
 
-
     get_headers() {
         let headers = {
-            'Content-Type': 'applications/json'
+            'Content-Type': 'application/json'
         }
         if (this.is_authenticated()) {
             headers['Authorization'] = 'Token ' + this.state.token
@@ -73,19 +66,43 @@ class App extends React.Component {
         return headers
     }
 
+
+
+    deleteProject(id) {
+        axios.delete(`http://127.0.0.1:8000/api/projects/${id}`)
+            .then(response => {
+                this.setState({
+                    projects: this.state.projects.filter((item) => item.id !==
+                        id)
+                })
+            }).catch(error => console.log(error))
+    }
+
+    createProject(name,user,links_repo) {
+        const headers = this.get_headers()
+        const data = {name: name, user: user, links_repo:links_repo}
+        axios.post(`http://127.0.0.1:8000/api/projects/`,data,{headers})
+            .then(response => {
+                let newProject = response.data
+                const user = this.state.users.filter((item) => item.id === newProject.user)[0]
+                newProject.user = user
+                this.setState({projects: [...this.state.projects, newProject]})
+            }).catch(error => console.log(error))
+    }
+
+
     load_data() {
         const headers = this.get_headers()
+        axios.get('http://127.0.0.1:8000/api/users/', {headers})
+            .then(response => {
+                this.setState({users: response.data})
+            }).catch(error => console.log(error))
         axios.get('http://127.0.0.1:8000/api/projects/', {headers})
             .then(response => {
                 this.setState({projects: response.data})
-            }).catch(error => console.log(error))
-
-        axios.get('https://127.0.0.1:8000/api/users/', {headers})
-            .then(response => {
-                this.setState({users: response.data})
             }).catch(error => {
             console.log(error)
-            this.setState({users: []})
+            this.setState({projects: []})
         })
     }
 
@@ -93,6 +110,7 @@ class App extends React.Component {
 
     componentDidMount() {
         this.get_token_from_storage()
+        this.load_data()
     }
 
     render() {
@@ -102,10 +120,10 @@ class App extends React.Component {
                     <nav>
                         <ul>
                             <li>
-                                <Link to='/'>Projects</Link>
+                                <Link to='/'>Users</Link>
                             </li>
                             <li>
-                                <Link to='/users'>Users</Link>
+                                <Link to='/projects'>Projects</Link>
                             </li>
                             <li>
                                 {this.is_authenticated() ? <button onClick={()=>this.logout()}>Logout</button> : <Link to='/login'>Login</Link> }
@@ -113,15 +131,15 @@ class App extends React.Component {
                         </ul>
                     </nav>
                     <Switch>
-                        <Route exact path='/' component={() => <ProjectList
-                            items={this.state.projects}/>}/>
-                        <Route exact path='/users' component={() => <UserList
+                        <Route exact path='/' component={() => <UserList
                             items={this.state.users}/>}/>
-                        <Route exact path='/login' component={() => <LoginForm get_token={(username, password) => this.get_token(username,password)} />} />
-                        <Route path="/project/:id">
-                            <ProjectUserList items={this.state.users}/>
+                        <Route exact path='/projects/create' component={() => <ProjectForm users={this.state.users} createProject={(name,user,links_repo) => this.createProject(name, user,links_repo)}/>}/>
+                        <Route exact path='/projects' component={() => <ProjectList
+                            items={this.state.projects} deleteProject={(id) => this.deleteProject(id)}/>}/>
+                        <Route path="/user/:id">
+                            <ProjectUserList items={this.state.projects}/>
                         </Route>
-                        <Redirect from='/projects' to='/'/>
+                        <Redirect from='/users' to='/'/>
                         <Route component={NotFound404}/>
                     </Switch>
                 </BrowserRouter>
@@ -130,4 +148,4 @@ class App extends React.Component {
     }
 }
 
-export default App;
+export default App

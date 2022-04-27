@@ -5,32 +5,32 @@ from rest_framework.authtoken import views
 from rest_framework import permissions
 # from rest_framework.schemas import get_schema_view
 # from authors.views import AuthorModelViewSet,BiographyModelViewSet,BookModelViewSet,ArticleModelViewSet
-from users.views import UserModelViewSet,ProjectModelViewSet,TodoListModelViewSet,UserListAPIView
+from users.views import UserModelViewSet,ProjectModelViewSet,TodoListModelViewSet
 
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 from graphene_django.views import GraphQLView
 
-schema_view = get_schema_view(
-    openapi.Info(
-        title='service',
-        default_version='1',
-        description='Документация',
-        contact=openapi.Contact(email='maximy@gmail.com'),
-        license=openapi.License(name='MIT License')
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
+# schema_view = get_schema_view(
+#     openapi.Info(
+#         title='service',
+#         default_version='1',
+#         description='Документация',
+#         contact=openapi.Contact(email='maximy@gmail.com'),
+#         license=openapi.License(name='MIT License')
+#     ),
+#     public=True,
+#     permission_classes=(permissions.AllowAny,),
+# )
 
 router = DefaultRouter()
 # router.register('authors', AuthorModelViewSet)
 # router.register('biographies',BiographyModelViewSet)
 # router.register('books', BookModelViewSet)
 # router.register('articles', ArticleModelViewSet)
-# router.register('users', UserModelViewSet)
-router.register('users_project',UserModelViewSet)
+router.register('users', UserModelViewSet)
+# router.register('users_project',UserModelViewSet)
 router.register('projects',ProjectModelViewSet)
 router.register('todolists',TodoListModelViewSet)
 
@@ -52,5 +52,5 @@ urlpatterns = [
     # re_path(r'^swagger(?P<format>\.json|\.yaml)$',schema_view.without_ui(cache_timeout=0), name='schema-json'),
     # path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),name='schema-swagger-ui'),
     # path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),name='schema-redoc'),
-    path('graphql/',GraphQLView.as_view(graphiql=True))
+    # path('graphql/',GraphQLView.as_view(graphiql=True))
 ]

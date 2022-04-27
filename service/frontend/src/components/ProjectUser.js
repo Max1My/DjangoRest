@@ -1,27 +1,27 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
 
-const UserItem = ({item}) => {
+const ProjectItem = ({item}) => {
     return (
         <tr>
             <td>{item.id}</td>
             <td>{item.name}</td>
-            <td>{item.project.name}</td>
+            <td>{item.user_test.username}</td>
         </tr>
     )
 }
 
 const ProjectUserList = ({items}) => {
     let { id } = useParams();
-    let filtered_items = items.filter((item) => item.project.id == id)
+    let filtered_items = items.filter((item) => item.user_test.id == id)
     return (
         <table>
             <tr>
                 <th>ID</th>
-                <th>USERNAME</th>
                 <th>PROJECT</th>
+                <th>USERNAME</th>
             </tr>
-            {filtered_items.map((item) => <UserItem item={item} />)}
+            {filtered_items.map((item) => <ProjectItem item={item} />)}
         </table>
     )
 }

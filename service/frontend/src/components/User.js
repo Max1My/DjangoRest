@@ -1,5 +1,5 @@
 import React from 'react'
-import {Link, useParams} from "react-router-dom";
+import {Link} from "react-router-dom";
 
 
 const UserItem = ({item}) => {
@@ -7,20 +7,23 @@ const UserItem = ({item}) => {
         <tr>
             <td>{item.id}</td>
             <td>{item.username}</td>
-            <td>{item.project.name}</td>
+            <td>{item.email}</td>
         </tr>
     )
 }
 const UserList = ({items}) => {
     return (
+        <div>
         <table>
             <tr>
                 <th>ID</th>
                 <th>USERNAME</th>
-                <th>PROJECT</th>
+                <th>EMAIL</th>
+                <th></th>
             </tr>
             {items.map((item) => <UserItem item={item}/>)}
         </table>
+        </div>
     )
 }
 
