@@ -1,6 +1,7 @@
 import React from 'react'
 import AuthorList from './components/Author.js'
 import BookList from './components/Book.js'
+import BookForm from "./components/BookForm";
 import AuthorBookList from './components/AuthorBook.js'
 import LoginForm from './components/Auth.js'
 import {BrowserRouter, Route, Switch, Redirect, Link} from 'react-router-dom'
@@ -21,7 +22,38 @@ class App extends React.Component {
         this.state = {
             'authors': [],
             'books': [],
+            'token': ''
         }
+    }
+
+    set_token(token) {
+        const cookies = new Cookies()
+        cookies.set('token', token)
+        this.setState({'token': token}, () => this.load_data())
+    }
+
+    is_authenticated() {
+        return this.state.token !== ''
+    }
+
+    logout() {
+        this.set_token('')
+    }
+
+    get_token_from_storage() {
+        const cookies = new Cookies()
+        const token = cookies.get('token')
+        this.setState({'token': token}, () => this.load_data())
+    }
+
+    get_token(username, password) {
+        axios.post('http://127.0.0.1:8000/api-token-auth/', {
+            username: username,
+            password: password
+        })
+            .then(response => {
+                this.set_token(response.data['token'])
+            }).catch(error => alert('Неверный логин или пароль'))
     }
 
     get_headers() {
@@ -46,20 +78,38 @@ class App extends React.Component {
             }).catch(error => console.log(error))
     }
 
-
-    load_data() {
-        axios.get('http://127.0.0.1:8000/api/authors/')
+    createBook(name,author) {
+        const headers = this.get_headers()
+        const data = {name: name, author: author}
+        axios.post(`http://127.0.0.1:8000/api/books/`,data,{headers})
             .then(response => {
-                this.setState({authors: response.data})
-            }).catch(error => console.log(error))
-        axios.get('http://127.0.0.1:8000/api/books/')
-            .then(response => {
-                this.setState({books: response.data})
+                let newBook = response.data
+                const author = this.state.authors.filter((item) => item.id === newBook.author)[0]
+                newBook.author = author
+                this.setState({books: [...this.state.books, newBook]})
             }).catch(error => console.log(error))
     }
 
 
+    load_data() {
+        const headers = this.get_headers()
+        axios.get('http://127.0.0.1:8000/api/authors/', {headers})
+            .then(response => {
+                this.setState({authors: response.data})
+            }).catch(error => console.log(error))
+        axios.get('http://127.0.0.1:8000/api/books/', {headers})
+            .then(response => {
+                this.setState({books: response.data})
+            }).catch(error => {
+            console.log(error)
+            this.setState({books: []})
+        })
+    }
+
+
+
     componentDidMount() {
+        this.get_token_from_storage()
         this.load_data()
     }
 
@@ -75,11 +125,15 @@ class App extends React.Component {
                             <li>
                                 <Link to='/books'>Books</Link>
                             </li>
+                            <li>
+                                {this.is_authenticated() ? <button onClick={()=>this.logout()}>Logout</button> : <Link to='/login'>Login</Link> }
+                            </li>
                         </ul>
                     </nav>
                     <Switch>
                         <Route exact path='/' component={() => <AuthorList
                             items={this.state.authors}/>}/>
+                        <Route exact path='/books/create' component={() => <BookForm authors={this.state.authors} createBook={(name,author) => this.createBook(name, author)}/>}/>
                         <Route exact path='/books' component={() => <BookList
                             items={this.state.books} deleteBook={(id) => this.deleteBook(id)}/>}/>
                         <Route path="/author/:id">
